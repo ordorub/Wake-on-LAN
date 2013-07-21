@@ -16,7 +16,6 @@
  * • Errors should be evaluated via „errno“!
  */
 
-#include "wol.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,26 +28,27 @@
 
 int wakeOnLan(const char *ipBroadcast, const char *mac2wake)
 {
+    int i, j;
     /* Create magic packet */
 	unsigned char magicPacket[102];
 	unsigned char macAddress[6];
     
     /* The first 6 bytes of the magic packet are filled with 0xFF. This is probably the source broadcast MAC address? */
-    for (int i = 0; i < 6; i++) {
+    for (i = 0; i < 6; i++) {
         magicPacket[i] = 0xFF;
     }
     
     /* The next 6 bytes are the MAC address of the target computer. */
     char *iterator = (char *)mac2wake;  // Reading from const char only, storing iterators position
-    for (int i = 0; i < 6; i++) {
+    for (i = 0; i < 6; i++) {
         long macPart = strtol(iterator, &iterator, 16);
         iterator++;
         macAddress[i] = macPart;
     }
     
     /* Each subsequent set of 6 bytes is also filled with the MAC address of the target computer, until the packet is full at 102 octets. */
-    for (int i = 6; i < 102; i++) {
-        for (int j = 0; j < 6; j++) {
+    for (i = 6; i < 102; i++) {
+        for (j = 0; j < 6; j++) {
             magicPacket[i++] = macAddress[j];
         }
         i--;
@@ -76,5 +76,10 @@ int wakeOnLan(const char *ipBroadcast, const char *mac2wake)
     // --
 	
 	return 0;
+}
+
+int main (int argc, const char * argv[])
+{
+    return wakeOnLan(argv[1], argv[2]);
 }
 
